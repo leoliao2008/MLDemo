@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toOffLineMLDemo(View view) {
-        OfflineMLDemoActivity.start(this);
+        ImageCognitiveDemo.start(this);
     }
 
     public void toGoogleCloudVisionDemo(View view) {

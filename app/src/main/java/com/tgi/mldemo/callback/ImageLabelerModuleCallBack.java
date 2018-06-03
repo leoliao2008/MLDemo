@@ -2,6 +2,7 @@ package com.tgi.mldemo.callback;
 
 import android.support.annotation.NonNull;
 
+import com.google.firebase.ml.vision.cloud.label.FirebaseVisionCloudLabel;
 import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
 
 import java.util.List;
@@ -16,11 +17,15 @@ import java.util.List;
  * 更新描述   ${TODO}
  */
 public class ImageLabelerModuleCallBack {
-    public void onSuccess(List<FirebaseVisionLabel> firebaseVisionLabels){
+    public void onGetOfflineResult(List<FirebaseVisionLabel> results){
 
     }
 
     public void onFailure(@NonNull Exception e){
+
+    }
+
+    public void onGetOnlineResult(List<FirebaseVisionCloudLabel> results) {
 
     }
 }

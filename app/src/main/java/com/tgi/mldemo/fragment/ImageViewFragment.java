@@ -28,7 +28,7 @@ import java.io.InputStream;
  * 更新时间   $Date$
  * 更新描述   ${TODO}
  */
-public class FoodImageFragment extends Fragment {
+public class ImageViewFragment extends Fragment {
 
     private Bitmap mBitmap;
     private AssetManager mAssetManager;
@@ -52,7 +52,7 @@ public class FoodImageFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ImageView view = (ImageView) inflater.inflate(R.layout.fragment_food_image_content_view, null);
+        ImageView view = (ImageView) inflater.inflate(R.layout.fragment_image_view, null);
         view.setImageBitmap(mBitmap);
         return view;
     }

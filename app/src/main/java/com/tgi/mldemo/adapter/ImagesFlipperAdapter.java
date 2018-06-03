@@ -5,11 +5,12 @@ import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
+import com.tgi.mldemo.data.ImageCategory;
 import com.tgi.mldemo.data.Static;
-import com.tgi.mldemo.fragment.FoodImageFragment;
+import com.tgi.mldemo.fragment.ImageViewFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,25 +25,38 @@ import java.util.TreeMap;
  * 更新时间   $Date$
  * 更新描述   ${TODO}
  */
-public class FoodImagesAdapter extends FragmentPagerAdapter {
+public class ImagesFlipperAdapter extends FragmentStatePagerAdapter {
     private Context mContext;
     private ArrayList<String> mPaths=new ArrayList<>();
     private final AssetManager mAssetManager;
-    private TreeMap<Integer,FoodImageFragment> mMap=new TreeMap<>();
+    private TreeMap<Integer,ImageViewFragment> mMap=new TreeMap<>();
+    
 
-    public FoodImagesAdapter(FragmentManager fm,Context context) {
+    public ImagesFlipperAdapter(Context context,FragmentManager fm, ImageCategory category) {
         super(fm);
         mContext=context;
         mAssetManager = mContext.getResources().getAssets();
-        try {
-            String [] foods = mAssetManager.list("foods");
-            for(String temp:foods){
-                mPaths.add("foods/"+temp);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            showLog(e.getMessage());
+        showImagesResources(category);
+    }
 
+    private void showImagesResources(ImageCategory category) {
+        StringBuffer sb=new StringBuffer();
+        sb.append("image_resource/");
+        if(category == ImageCategory.FOODS){
+            sb.append("foods");
+        }else if(category==ImageCategory.CARS){
+            sb.append("cars");
+        }
+        try {
+            String path = sb.toString();
+            String[] list = mAssetManager.list(path);
+            mPaths.clear();
+            for(String temp:list){
+                mPaths.add(path+"/"+temp);
+            }
+            showLog(mPaths.toString());
+        } catch (IOException e) {
+            showLog(e.getMessage());
         }
     }
 
@@ -50,11 +64,11 @@ public class FoodImagesAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if(mPaths!=null&&mPaths.size()>0){
-            FoodImageFragment fragment;
+            ImageViewFragment fragment;
             if(mMap.get(position)!=null){
                 fragment=mMap.get(position);
             }else {
-                fragment = new FoodImageFragment();
+                fragment = new ImageViewFragment();
                 Bundle bundle=new Bundle();
                 bundle.putString(Static.KEY_ASSET_PATH,mPaths.get(position));
                 fragment.setArguments(bundle);
@@ -77,4 +91,5 @@ public class FoodImagesAdapter extends FragmentPagerAdapter {
     private void showLog(String msg){
         Log.e("Log from FoodImageAdt",msg);
     }
+    
 }

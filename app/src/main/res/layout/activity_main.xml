@@ -10,14 +10,9 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Use ML Kit Offline Version"
+        android:text="Image Cognitive Ability"
         android:textAllCaps="false"
         android:onClick="toOffLineMLDemo"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Use Google Cloud Vision API"
-        android:textAllCaps="false"
-        android:onClick="toGoogleCloudVisionDemo"/>
+
 
 </LinearLayout>
