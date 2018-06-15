@@ -7,12 +7,75 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity"
     android:orientation="vertical">
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Image Cognitive Ability"
         android:textAllCaps="false"
         android:onClick="toOffLineMLDemo"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cloud Vision Api Test"
+        android:textAllCaps="false"
+        android:onClick="toCVTest"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Compare between different Modules"
+        android:textAllCaps="false"
+        android:onClick="compareModules"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Narrow Down by Result Helper"
+        android:textAllCaps="false"
+        android:onClick="toResultHelperTest"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test Nutrition API"
+        android:textAllCaps="false"
+        android:onClick="toNutritionAPITest"/>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Food Logs"
+        android:textAllCaps="false"
+        android:onClick="toFoodLogsActivity"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Final Test"
+        android:textAllCaps="false"
+        android:onClick="toFinalTest"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CameraViewDemo"
+        android:textAllCaps="false"
+        android:onClick="toCameraViewDemo"/>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Camera ML Test"
+        android:textAllCaps="false"
+        android:onClick="toCameraMLActivity"/>
+
+
+
+
 
 
 </LinearLayout>

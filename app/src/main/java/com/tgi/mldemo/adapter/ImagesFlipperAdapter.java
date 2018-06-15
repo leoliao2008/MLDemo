@@ -46,6 +46,8 @@ public class ImagesFlipperAdapter extends FragmentStatePagerAdapter {
             sb.append("foods");
         }else if(category==ImageCategory.CARS){
             sb.append("cars");
+        }else if(category==ImageCategory.SEA_FOODS){
+            sb.append("seafoods");
         }
         try {
             String path = sb.toString();
@@ -54,7 +56,6 @@ public class ImagesFlipperAdapter extends FragmentStatePagerAdapter {
             for(String temp:list){
                 mPaths.add(path+"/"+temp);
             }
-            showLog(mPaths.toString());
         } catch (IOException e) {
             showLog(e.getMessage());
         }
@@ -89,7 +90,7 @@ public class ImagesFlipperAdapter extends FragmentStatePagerAdapter {
     }
 
     private void showLog(String msg){
-        Log.e("Log from FoodImageAdt",msg);
+        Log.e(getClass().getSimpleName(),msg);
     }
     
 }

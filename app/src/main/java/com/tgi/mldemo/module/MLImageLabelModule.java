@@ -9,7 +9,7 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.cloud.label.FirebaseVisionCloudLabel;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
-import com.tgi.mldemo.callback.ImageLabelerModuleCallBack;
+import com.tgi.mldemo.callback.MLImageLabelModuleCallBack;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import java.util.List;
 public class MLImageLabelModule {
 
 
-    public void identifyUsingMLOffline(Bitmap bitmap, final ImageLabelerModuleCallBack callBack){
+    public void identifyUsingMLOffline(Bitmap bitmap, final MLImageLabelModuleCallBack callBack){
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         FirebaseVision.getInstance().getVisionLabelDetector().detectInImage(image).addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionLabel>>() {
             @Override
@@ -40,7 +40,7 @@ public class MLImageLabelModule {
         });
     }
 
-    public void identifyUsingMLOnline(Bitmap bitmap,final ImageLabelerModuleCallBack callBack){
+    public void identifyUsingMLOnline(Bitmap bitmap,final MLImageLabelModuleCallBack callBack){
         FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
         FirebaseVision.getInstance().getVisionCloudLabelDetector().detectInImage(image)
                 .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionCloudLabel>>() {
@@ -56,8 +56,6 @@ public class MLImageLabelModule {
 
                     }
                 });
-
-
     }
 
 

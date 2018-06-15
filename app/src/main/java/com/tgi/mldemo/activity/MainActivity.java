@@ -18,7 +18,37 @@ public class MainActivity extends AppCompatActivity {
         ImageCognitiveDemo.start(this);
     }
 
-    public void toGoogleCloudVisionDemo(View view) {
+    public void toCVTest(View view) {
+        CloudVisionApiTestActivity.start(this);
+    }
 
+    public void compareModules(View view) {
+        ModulesComparisonActivity.start(this);
+
+    }
+
+    public void toResultHelperTest(View view) {
+        ResultHelperDemo.start(this);
+    }
+
+    public void toNutritionAPITest(View view) {
+        FoodSearchActivity.start(this);
+
+    }
+
+    public void toFinalTest(View view) {
+        FinalTestActivity.start(this);
+    }
+
+    public void toCameraMLActivity(View view){
+        CameraActivity.start(this);
+    }
+
+    public void toFoodLogsActivity(View view) {
+        FoodLogsActivity.start(this);
+    }
+
+    public void toCameraViewDemo(View view) {
+        CameraViewDemo.start(this);
     }
 }

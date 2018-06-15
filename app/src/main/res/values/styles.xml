@@ -8,4 +8,40 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="FullScreenTheme" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+    <style name="DividerStyle_Medium_Height">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/dp_10</item>
+        <item name="android:background">@android:color/darker_gray</item>
+        <item name="android:layout_marginLeft">@dimen/dp_10</item>
+        <item name="android:layout_marginRight">@dimen/dp_10</item>
+        <item name="android:layout_marginTop">@dimen/dp_5</item>
+        <item name="android:layout_marginBottom">@dimen/dp_5</item>
+    </style>
+
+    <style name="DividerStyle_Minor_Height" parent="DividerStyle_Medium_Height">
+        <item name="android:layout_height">@dimen/dp_2</item>
+    </style>
+
+
+    <style name="TextViewStyle_Nutrient_Value_Plain_Medium_Padding">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">@dimen/dp_10</item>
+    </style>
+    <style name="TextViewStyle_Nutrient_Value_Plain_Minor_Padding" parent="TextViewStyle_Nutrient_Value_Plain_Medium_Padding">
+        <item name="android:paddingLeft">@dimen/dp_5</item>
+    </style>
+
+    <style name="TextViewStyle_Nutrient_Value_Bold_Medium_Padding" parent="TextViewStyle_Nutrient_Value_Plain_Medium_Padding">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
 </resources>

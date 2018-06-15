@@ -21,11 +21,18 @@ import com.google.firebase.ml.vision.cloud.label.FirebaseVisionCloudLabel;
 import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
 import com.tgi.mldemo.R;
 import com.tgi.mldemo.adapter.ImagesFlipperAdapter;
-import com.tgi.mldemo.callback.ImageLabelerModuleCallBack;
+import com.tgi.mldemo.bean.CloudVisionResponse;
+import com.tgi.mldemo.callback.JavaHttpUrlRequestCallBack;
+import com.tgi.mldemo.callback.MLImageLabelModuleCallBack;
+import com.tgi.mldemo.callback.VisionRequestModuleCallBack;
 import com.tgi.mldemo.data.ImageCategory;
+import com.tgi.mldemo.data.Static;
 import com.tgi.mldemo.fragment.ImageViewFragment;
+import com.tgi.mldemo.module.CloudAPITutorialModule;
+import com.tgi.mldemo.module.JavaHttpUrlRequestModule;
 import com.tgi.mldemo.module.MLImageLabelModule;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -50,6 +57,8 @@ public class ImageCognitiveDemo extends AppCompatActivity {
     private ImagesFlipperAdapter mAdapter;
     private MLImageLabelModule mMLImageLabelModule;
     private ImageCategory mCategory= ImageCategory.FOODS;
+    private CloudAPITutorialModule mCloudAPITutorialModule;
+    private JavaHttpUrlRequestModule mJavaHttpUrlRequestModule;
 
 
     public static void start(Context context) {
@@ -70,6 +79,70 @@ public class ImageCognitiveDemo extends AppCompatActivity {
         mAdapter = new ImagesFlipperAdapter(this, getSupportFragmentManager(), mCategory);
         mViewPager.setAdapter(mAdapter);
         mMLImageLabelModule = new MLImageLabelModule();
+        mCloudAPITutorialModule =new CloudAPITutorialModule(this,new VisionRequestModuleCallBack(){
+            @Override
+            public void onPreExecute() {
+                super.onPreExecute();
+                mTvResult.setText("Searching...Please hold on.");
+            }
+
+            @Override
+            public void onGetResults(ArrayList<String> results) {
+                super.onGetResults(results);
+                int size = results.size();
+                StringBuffer sb=new StringBuffer();
+                sb.append("It could be ");
+                for(int i=0;i<size;i++){
+                    sb.append(results.get(i));
+                    if(i!=size-1){
+                        sb.append(" / ");
+                    }else {
+                        sb.append(".");
+                    }
+                    mTvResult.setText(sb.toString());
+                }
+            }
+
+            @Override
+            public void onNoResult() {
+                super.onNoResult();
+                mTvResult.setText("No result to be found.");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+                mTvResult.setText(e.getMessage());
+            }
+        });
+
+        mJavaHttpUrlRequestModule=new JavaHttpUrlRequestModule(this,new JavaHttpUrlRequestCallBack(){
+            @Override
+            public void onPreExecute() {
+                super.onPreExecute();
+                mTvResult.setText("Searching...Please Hold on...");
+            }
+
+            @Override
+            public void onPostExecute(CloudVisionResponse response) {
+                super.onPostExecute(response);
+                StringBuffer sb=new StringBuffer();
+                sb.append("It could be ");
+                List<CloudVisionResponse.Response.WebDetection.WebEntities> entities = response.getResponses().get(0).getWebDetection().getWebEntities();
+                for(CloudVisionResponse.Response.WebDetection.WebEntities temp:entities){
+                    sb.append(temp.getDescription()).append("/");
+                }
+                mTvResult.setText(sb.toString());
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+                mTvResult.setText(e.getMessage());
+            }
+        }, Static.GOOGLE_CLOUD_API_KEY);
+
 
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null){
@@ -100,30 +173,32 @@ public class ImageCognitiveDemo extends AppCompatActivity {
         mBtnIdentify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int currentItem = mViewPager.getCurrentItem();
+                ImageViewFragment item = (ImageViewFragment) mAdapter.getItem(currentItem);
+                Bitmap bitmap = item.getBitmap();
+                if (bitmap == null) {
+                    showLog("bitmap == null!");
+                    return;
+                }
                 if(mRdbtnMLDevice.isChecked()){
-                    identifyUsingMKOffline();
+                    identifyUsingMKOffline(bitmap);
                 }else if(mRdbtnMLOnline.isChecked()){
-                    identifyUsingMKOnline();
+                    identifyUsingMKOnline(bitmap);
                 }else if(mRdbtnCloud.isChecked()){
-                    identifyUsingCloud();
+                    identifyUsingCloud(bitmap);
                 }
             }
         });
 
     }
 
-    private void identifyUsingCloud() {
-
+    private void identifyUsingCloud(Bitmap bitmap) {
+//        mCloudAPITutorialModule.identifyBitmap(bitmap);
+        mJavaHttpUrlRequestModule.identifyBitmap(bitmap);
     }
 
-    private void identifyUsingMKOnline() {
-        ImageViewFragment item = (ImageViewFragment) mAdapter.getItem(mViewPager.getCurrentItem());
-        Bitmap bitmap = item.getBitmap();
-        if (bitmap == null) {
-            showLog("bitmap == null!");
-            return;
-        }
-        mMLImageLabelModule.identifyUsingMLOnline(item.getBitmap(),new ImageLabelerModuleCallBack(){
+    private void identifyUsingMKOnline(Bitmap bitmap) {
+        mMLImageLabelModule.identifyUsingMLOnline(bitmap,new MLImageLabelModuleCallBack(){
             @Override
             public void onGetOnlineResult(List<FirebaseVisionCloudLabel> results) {
                 super.onGetOnlineResult(results);
@@ -155,15 +230,9 @@ public class ImageCognitiveDemo extends AppCompatActivity {
 
     }
 
-    private void identifyUsingMKOffline() {
-        int currentItem = mViewPager.getCurrentItem();
-        ImageViewFragment item = (ImageViewFragment) mAdapter.getItem(currentItem);
-        Bitmap bitmap = item.getBitmap();
-        if (bitmap == null) {
-            showLog("bitmap == null!");
-            return;
-        }
-        mMLImageLabelModule.identifyUsingMLOffline(item.getBitmap(), new ImageLabelerModuleCallBack() {
+    private void identifyUsingMKOffline(Bitmap bitmap) {
+
+        mMLImageLabelModule.identifyUsingMLOffline(bitmap, new MLImageLabelModuleCallBack() {
             @Override
             public void onGetOfflineResult(List<FirebaseVisionLabel> firebaseVisionLabels) {
                 super.onGetOfflineResult(firebaseVisionLabels);

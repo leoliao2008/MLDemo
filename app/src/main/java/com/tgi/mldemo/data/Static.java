@@ -11,4 +11,12 @@ package com.tgi.mldemo.data;
  */
 public interface Static {
     String KEY_ASSET_PATH="KEY_ASSET_PATH";
+
+    String GOOGLE_CLOUD_REQUEST_PREFIX_WITH_API_KEY ="https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCfumHWd3vwqoPElSZ3D1H46iBhLk6MMxM";
+    //POST https://vision.googleapis.com/v1/images:annotate?key=YOUR_API_KEY
+    String GOOGLE_CLOUD_API_KEY="AIzaSyCfumHWd3vwqoPElSZ3D1H46iBhLk6MMxM";
+    String KEY_FOOD_ID = "KEY_FOOD_ID";
+
+    //    String ANDROID_CERT_HEADER = "X-Android-Cert";
+//    String ANDROID_PACKAGE_HEADER = "X-Android-Package";
 }

@@ -10,5 +10,5 @@ package com.tgi.mldemo.data;
  * 更新描述   ${TODO}
  */
 public enum ImageCategory {
-    CARS,FOODS
+    CARS,FOODS,SEA_FOODS
 }
