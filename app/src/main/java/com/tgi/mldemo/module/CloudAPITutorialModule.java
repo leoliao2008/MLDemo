@@ -192,35 +192,40 @@ public class CloudAPITutorialModule {
         }
 
         protected void onPostExecute(BatchAnnotateImagesResponse response) {
-            mCallBack.onGetImageResponse(response);
-            AnnotateImageResponse imageResponse = response.getResponses().get(0);
-            List<EntityAnnotation> labelAnnotations = imageResponse.getLabelAnnotations();
-            WebDetection detection = imageResponse.getWebDetection();
-            ArrayList<String> list=new ArrayList<>();
-            List<WebLabel> bestGuesses=null;
-            List<WebEntity> webEntities=null;
-            if(detection!=null){
-                bestGuesses = detection.getBestGuessLabels();
-                webEntities = detection.getWebEntities();
-            }
-            if(webEntities!=null){
-                for(WebEntity entity:webEntities){
-                    list.add(entity.getDescription());
+            try {
+                mCallBack.onGetImageResponse(response);
+                AnnotateImageResponse imageResponse = response.getResponses().get(0);
+                List<EntityAnnotation> labelAnnotations = imageResponse.getLabelAnnotations();
+                WebDetection detection = imageResponse.getWebDetection();
+                ArrayList<String> list=new ArrayList<>();
+                List<WebLabel> bestGuesses=null;
+                List<WebEntity> webEntities=null;
+                if(detection!=null){
+                    bestGuesses = detection.getBestGuessLabels();
+                    webEntities = detection.getWebEntities();
                 }
-            }else if(bestGuesses!=null){
-                for(WebLabel label:bestGuesses){
-                    list.add(label.getLabel());
+                if(webEntities!=null){
+                    for(WebEntity entity:webEntities){
+                        list.add(entity.getDescription());
+                    }
+                }else if(bestGuesses!=null){
+                    for(WebLabel label:bestGuesses){
+                        list.add(label.getLabel());
+                    }
+                }else if(labelAnnotations!=null){
+                    for(EntityAnnotation annotation:labelAnnotations){
+                        list.add(annotation.getDescription());
+                    }
                 }
-            }else if(labelAnnotations!=null){
-                for(EntityAnnotation annotation:labelAnnotations){
-                    list.add(annotation.getDescription());
+                if(list.size()>0){
+                    mCallBack.onGetResults(list);
+                }else {
+                    mCallBack.onNoResult();
                 }
+            }catch (NullPointerException e){
+                mCallBack.onError(e);
             }
-            if(list.size()>0){
-                mCallBack.onGetResults(list);
-            }else {
-                mCallBack.onNoResult();
-            }
+
 
         }
     }

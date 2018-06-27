@@ -1,36 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.CameraActivity"
-    android:orientation="vertical">
+    tools:context=".activity.CameraActivity">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <SurfaceView
-            android:id="@+id/sfv_camera"
+        android:layout_height="match_parent">
+        <com.tgi.mldemo.view.CameraViewBundles
+            android:id="@+id/camera_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/selector_check_red_to_orange"
-            android:padding="@dimen/dp_10"/>
-        <Button
-            android:onClick="takePic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Take"
-            android:textAllCaps="false"
-            android:layout_gravity="bottom|center_horizontal"/>
+            android:src="@drawable/selector_check_red_to_orange" />
         <ImageView
             android:id="@+id/iv_snap_shot"
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/chicken_legs"
+            android:scaleType="centerCrop"
             android:background="@android:color/white"/>
 
         <ImageView
@@ -38,50 +29,78 @@
             android:id="@+id/iv_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/selector_clear_red_to_orange"
+            android:src="@drawable/ic_action_close"
             android:padding="@dimen/dp_10"/>
         <ImageView
             android:visibility="gone"
             android:id="@+id/iv_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/selector_check_red_to_orange"
+            android:src="@drawable/ic_action_click"
             android:padding="@dimen/dp_10"
             android:layout_gravity="end"/>
     </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.25">
-        <TextView
-            android:id="@+id/tv_best_result"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textSize="@dimen/sp_20"
-            android:textColor="@android:color/holo_green_dark"/>
-        <View
-            android:layout_width="@dimen/dp_2"
-            android:layout_height="wrap_content"
-            android:background="@color/grey"/>
-        <TextView
-            android:id="@+id/tv_basic_nutrients"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:padding="@dimen/dp_5"
-            android:gravity="center_vertical"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:onClick="takePic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Take"
+                android:textAllCaps="false"
+                android:layout_gravity="bottom|center_horizontal"/>
+            <Button
+                android:id="@+id/btn_save_to_diet_log"
+                android:onClick="saveToDietLog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginRight="@dimen/dp_10"
+                android:text="Save To Diet Log"
+                android:textAllCaps="false"/>
+        </FrameLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_70"
+            android:background="@android:color/white">
+            <android.support.v7.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4"
+                android:layout_margin="@dimen/dp_2"
+                app:cardCornerRadius="@dimen/dp_2">
+                <TextView
+                    android:id="@+id/tv_best_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textSize="@dimen/sp_18"
+                    android:textColor="@android:color/holo_green_dark"/>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/dp_2"
+                app:cardCornerRadius="@dimen/dp_2">
+                <include layout="@layout/widget_basic_nutrient_board"/>
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:background="@android:color/white"
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
     </LinearLayout>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.25"/>
 
-
-
-
-</LinearLayout>
+</RelativeLayout>

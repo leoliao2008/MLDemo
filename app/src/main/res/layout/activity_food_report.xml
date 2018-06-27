@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.FoodReportActivity"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_5">
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name"/>
+    <TextView
+        android:id="@+id/tv_ID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ID"/>
+    <TextView
+        android:id="@+id/tv_data_source"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DataSource"/>
+
+    <TextView
+        android:id="@+id/tv_unit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Unit"/>
+
+    <include
+        layout="@layout/widget_basic_nutrient_board"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_80"
+        />
+
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+
+</LinearLayout>

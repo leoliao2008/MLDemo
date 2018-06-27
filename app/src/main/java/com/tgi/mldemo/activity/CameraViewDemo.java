@@ -13,7 +13,7 @@ import com.tgi.mldemo.R;
 import com.tgi.mldemo.adapter.ThumbNailsAdapter;
 import com.tgi.mldemo.callback.CameraViewCallBack;
 import com.tgi.mldemo.utils.ToastUtil;
-import com.tgi.mldemo.view.CameraView;
+import com.tgi.mldemo.view.CameraViewBundles;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,7 @@ import butterknife.ButterKnife;
 
 public class CameraViewDemo extends AppCompatActivity {
     @BindView(R.id.camera_view)
-    CameraView cameraView;
+    CameraViewBundles cameraView;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private ThumbNailsAdapter mAdapter;

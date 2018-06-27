@@ -8,7 +8,7 @@
     tools:context=".activity.CameraViewDemo"
     android:orientation="vertical">
 
-    <com.tgi.mldemo.view.CameraView
+    <com.tgi.mldemo.view.CameraViewBundles
         android:id="@+id/camera_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"

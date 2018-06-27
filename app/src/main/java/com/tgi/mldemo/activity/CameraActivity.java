@@ -5,32 +5,40 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tgi.mldemo.R;
 import com.tgi.mldemo.presenters.CameraActivityPresenter;
+import com.tgi.mldemo.view.CameraViewBundles;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class CameraActivity extends AppCompatActivity {
-    @BindView(R.id.sfv_camera)
-    SurfaceView sfv_camera;
+    @BindView(R.id.camera_view)
+    CameraViewBundles sfv_camera;
     @BindView(R.id.iv_clear)
     ImageView iv_clear;
     @BindView(R.id.tv_best_result)
     TextView tv_bestResult;
-    @BindView(R.id.tv_basic_nutrients)
-    TextView tv_basicNutrients;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.iv_check)
     ImageView iv_check;
     @BindView(R.id.iv_snap_shot)
     ImageView iv_snapShot;
+    @BindView(R.id.widget_basic_nutrient_board_tv_cal)
+    TextView tvCal;
+    @BindView(R.id.widget_basic_nutrient_board_tv_protein)
+    TextView tvProtein;
+    @BindView(R.id.widget_basic_nutrient_board_tv_fat)
+    TextView tvFat;
+    @BindView(R.id.widget_basic_nutrient_board_tv_carb)
+    TextView tvCarb;
+    @BindView(R.id.widget_basic_nutrient_board_tv_cover)
+    TextView tvCover;
     private CameraActivityPresenter mPresenter;
 
 
@@ -76,7 +84,7 @@ public class CameraActivity extends AppCompatActivity {
         mPresenter.takePicture();
     }
 
-    public SurfaceView getSfv_camera() {
+    public CameraViewBundles getCameraView() {
         return sfv_camera;
     }
 
@@ -86,10 +94,6 @@ public class CameraActivity extends AppCompatActivity {
 
     public TextView getTv_bestResult() {
         return tv_bestResult;
-    }
-
-    public TextView getTv_basicNutrients() {
-        return tv_basicNutrients;
     }
 
     public RecyclerView getRecyclerView() {
@@ -104,5 +108,28 @@ public class CameraActivity extends AppCompatActivity {
         return iv_snapShot;
     }
 
+    public TextView getTvCal() {
+        return tvCal;
+    }
+
+    public TextView getTvProtein() {
+        return tvProtein;
+    }
+
+    public TextView getTvFat() {
+        return tvFat;
+    }
+
+    public TextView getTvCarb() {
+        return tvCarb;
+    }
+
+    public TextView getTvCover() {
+        return tvCover;
+    }
+
+    public void saveToDietLog(View view) {
+        mPresenter.updateDietLog();
+    }
 
 }

@@ -20,7 +20,7 @@ import com.tgi.mldemo.callback.VisionRequestModuleCallBack;
 import com.tgi.mldemo.data.Static;
 import com.tgi.mldemo.module.CloudAPIModule;
 import com.tgi.mldemo.module.CloudAPITutorialModule;
-import com.tgi.mldemo.module.JavaHttpUrlRequestModule;
+import com.tgi.mldemo.module.CloudVisionModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class ModulesCmpActivityPresenter {
     private LinearLayout.LayoutParams mResultsLayoutParams;
     private ArrayList<String> mResult =new ArrayList<>();
     private SearchResultAdapter mSearchResultAdapter;
-    private JavaHttpUrlRequestModule mHttpUrlRequestModule;
+    private CloudVisionModule mHttpUrlRequestModule;
     private CloudAPITutorialModule mTutorialModule;
     private CloudAPIModule mCloudAPIModule;
     private int mSearchEngine=-1;
@@ -165,7 +165,7 @@ public class ModulesCmpActivityPresenter {
     }
 
     private void initMyGenericModule() {
-        mHttpUrlRequestModule=new JavaHttpUrlRequestModule(
+        mHttpUrlRequestModule=new CloudVisionModule(
                 mActivity,
                 new JavaHttpUrlRequestCallBack(){
                     private long mBegin;
@@ -185,7 +185,7 @@ public class ModulesCmpActivityPresenter {
                         updateConsole("Searching by generic java api cost "+elapse+" milliseconds.");
                         List<CloudVisionResponse.Response> list = response.getResponses();
                         if(list.size()<1){
-                            updateConsole("Responses list is empty.");
+                            updateConsole("FoodSearchResponses list is empty.");
                             return;
                         }
                         CloudVisionResponse.Response bean = list.get(0);

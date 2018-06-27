@@ -18,7 +18,7 @@ import com.tgi.mldemo.callback.JavaHttpUrlRequestCallBack;
 import com.tgi.mldemo.data.ImageCategory;
 import com.tgi.mldemo.data.Static;
 import com.tgi.mldemo.fragment.ImageViewFragment;
-import com.tgi.mldemo.module.JavaHttpUrlRequestModule;
+import com.tgi.mldemo.module.CloudVisionModule;
 import com.tgi.mldemo.module.ResultHelper;
 
 import butterknife.BindView;
@@ -31,7 +31,7 @@ public class ResultHelperDemo extends AppCompatActivity {
     @BindView(R.id.tv_result)
     TextView mTvResult;
     private ImagesFlipperAdapter mAdapter;
-    private JavaHttpUrlRequestModule mModule;
+    private CloudVisionModule mModule;
 
     public static void start(Context context) {
         Intent starter = new Intent(context, ResultHelperDemo.class);
@@ -44,7 +44,7 @@ public class ResultHelperDemo extends AppCompatActivity {
         setContentView(R.layout.activity_result_helper_demo);
         ButterKnife.bind(this);
         initViewPager(ImageCategory.FOODS);
-        mModule=new JavaHttpUrlRequestModule(
+        mModule=new CloudVisionModule(
                 this,
                 new JavaHttpUrlRequestCallBack(){
                     @Override

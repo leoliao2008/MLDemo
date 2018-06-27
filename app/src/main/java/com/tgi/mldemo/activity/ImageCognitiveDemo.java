@@ -29,7 +29,7 @@ import com.tgi.mldemo.data.ImageCategory;
 import com.tgi.mldemo.data.Static;
 import com.tgi.mldemo.fragment.ImageViewFragment;
 import com.tgi.mldemo.module.CloudAPITutorialModule;
-import com.tgi.mldemo.module.JavaHttpUrlRequestModule;
+import com.tgi.mldemo.module.CloudVisionModule;
 import com.tgi.mldemo.module.MLImageLabelModule;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class ImageCognitiveDemo extends AppCompatActivity {
     private MLImageLabelModule mMLImageLabelModule;
     private ImageCategory mCategory= ImageCategory.FOODS;
     private CloudAPITutorialModule mCloudAPITutorialModule;
-    private JavaHttpUrlRequestModule mJavaHttpUrlRequestModule;
+    private CloudVisionModule mCloudVisionModule;
 
 
     public static void start(Context context) {
@@ -83,7 +83,7 @@ public class ImageCognitiveDemo extends AppCompatActivity {
             @Override
             public void onPreExecute() {
                 super.onPreExecute();
-                mTvResult.setText("Searching...Please hold on.");
+                mTvResult.setText("Searching...Please hold onTask.");
             }
 
             @Override
@@ -116,11 +116,11 @@ public class ImageCognitiveDemo extends AppCompatActivity {
             }
         });
 
-        mJavaHttpUrlRequestModule=new JavaHttpUrlRequestModule(this,new JavaHttpUrlRequestCallBack(){
+        mCloudVisionModule =new CloudVisionModule(this,new JavaHttpUrlRequestCallBack(){
             @Override
             public void onPreExecute() {
                 super.onPreExecute();
-                mTvResult.setText("Searching...Please Hold on...");
+                mTvResult.setText("Searching...Please Hold onTask...");
             }
 
             @Override
@@ -194,7 +194,7 @@ public class ImageCognitiveDemo extends AppCompatActivity {
 
     private void identifyUsingCloud(Bitmap bitmap) {
 //        mCloudAPITutorialModule.identifyBitmap(bitmap);
-        mJavaHttpUrlRequestModule.identifyBitmap(bitmap);
+        mCloudVisionModule.identifyBitmap(bitmap);
     }
 
     private void identifyUsingMKOnline(Bitmap bitmap) {

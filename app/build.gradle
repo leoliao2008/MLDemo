@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.tgi.mldemo"
-        minSdkVersion 16
+        minSdkVersion 25
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -56,10 +56,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:3.5.2'
     implementation files('src/libs/fatsecret-platform-2.0.jar')
     implementation 'com.android.support:cardview-v7:26.1.0'
-
     implementation 'com.google.firebase:firebase-ml-model-interpreter:16.0.0'
-
-
     implementation 'com.android.support:multidex:1.0.3'
 }
 

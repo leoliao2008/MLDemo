@@ -43,14 +43,6 @@
         android:textAllCaps="false"
         android:onClick="toNutritionAPITest"/>
 
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Food Logs"
-        android:textAllCaps="false"
-        android:onClick="toFoodLogsActivity"/>
-
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -61,9 +53,17 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="NDB Demo"
+        android:textAllCaps="false"
+        android:onClick="toNdbDemo"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="CameraViewDemo"
         android:textAllCaps="false"
-        android:onClick="toCameraViewDemo"/>
+        android:onClick="toCameraViewDemo"
+        android:visibility="gone"/>
 
 
     <Button
@@ -72,6 +72,22 @@
         android:text="Camera ML Test"
         android:textAllCaps="false"
         android:onClick="toCameraMLActivity"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SQL Food Data Base"
+        android:textAllCaps="false"
+        android:onClick="toFoodDataBase"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="User History Diets"
+        android:textAllCaps="false"
+        android:onClick="toDietRecordActivity"/>
+
+
 
 
 

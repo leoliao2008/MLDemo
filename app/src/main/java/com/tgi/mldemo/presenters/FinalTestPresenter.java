@@ -25,7 +25,7 @@ import com.tgi.mldemo.data.ImageCategory;
 import com.tgi.mldemo.data.Static;
 import com.tgi.mldemo.fragment.ImageViewFragment;
 import com.tgi.mldemo.module.FatSecretApiModule;
-import com.tgi.mldemo.module.JavaHttpUrlRequestModule;
+import com.tgi.mldemo.module.CloudVisionModule;
 import com.tgi.mldemo.module.ResultHelper;
 import com.tgi.mldemo.utils.AlertDialogUtils;
 
@@ -39,7 +39,7 @@ public class FinalTestPresenter {
     private FrameLayout.LayoutParams mParams;
     private ViewPager mViewPager;
     private ImagesFlipperAdapter mImagesFlipperAdapter;
-    private JavaHttpUrlRequestModule mJavaHttpUrlRequestModule;
+    private CloudVisionModule mCloudVisionModule;
     private AtomicBoolean mIsRecyclerViewShowing=new AtomicBoolean(false);
     private ProgressDialog mProgressDialog;
     private ArrayList<String> mPossibleResultList = new ArrayList<>();
@@ -61,7 +61,7 @@ public class FinalTestPresenter {
     public void identify(){
         ImageViewFragment item = (ImageViewFragment) mImagesFlipperAdapter.getItem(mViewPager.getCurrentItem());
         Bitmap bitmap = item.getBitmap();
-        mJavaHttpUrlRequestModule.identifyBitmap(bitmap);
+        mCloudVisionModule.identifyBitmap(bitmap);
     }
 
 
@@ -95,7 +95,7 @@ public class FinalTestPresenter {
     }
     private void initCloudVisionModule() {
 
-        mJavaHttpUrlRequestModule =new JavaHttpUrlRequestModule(
+        mCloudVisionModule =new CloudVisionModule(
                 mActivity,
                 new JavaHttpUrlRequestCallBack(){
                     @Override

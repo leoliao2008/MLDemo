@@ -1,5 +1,7 @@
 package com.tgi.mldemo.view;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -29,6 +31,15 @@ public class CameraView extends SurfaceView {
     private int mViewWidth;
     private int mViewHeight;
     private AtomicBoolean mIsReadyToPic=new AtomicBoolean(false);
+    private Camera.AutoFocusCallback mFocusCallback=new Camera.AutoFocusCallback() {
+        @Override
+        public void onAutoFocus(boolean success, Camera camera) {
+            mIsReadyToPic.set(success);
+        }
+    };
+    private AtomicBoolean mIsAnimFocusing=new AtomicBoolean(false);
+    private AnimationValueCallBack mAnimationValueCallBack;
+
 
     public CameraView(Context context) {
         this(context,null);
@@ -53,6 +64,7 @@ public class CameraView extends SurfaceView {
                     mCamera=Camera.open();
                 }catch (Exception e){
                     handleException(e);
+                    mCamera=null;
                     return;
                 }
                 try {
@@ -70,28 +82,42 @@ public class CameraView extends SurfaceView {
                     mCamera.stopPreview();
                     mCamera.cancelAutoFocus();
                     Camera.Parameters parameters = mCamera.getParameters();
-                    List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
-                    Camera.Size preViewSize= getBestSize(previewSizes,mViewWidth,mViewHeight);
-                    if(preViewSize!=null){
-                        parameters.setPreviewSize(preViewSize.width,preViewSize.height);
-                    }
-                    List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
-                    Camera.Size picSize = getBestSize(pictureSizes, mViewWidth, mViewHeight);
-                    if(picSize!=null){
-                        parameters.setPictureSize(picSize.width,picSize.height);
-                    }
+//                    List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
+//                    showLog("SupportedPreviewSizes:");
+//                    for(Camera.Size size:previewSizes){
+//                        showLog("w:"+size.width+" h:"+size.height+" w:h="+size.width*1.f/size.height+" vs: screen ratio w="+mViewWidth+" h="+mViewHeight+" w:h="+mViewWidth*1.f/mViewHeight);
+//                    }
+//                    Camera.Size preViewSize= getBestSize(previewSizes,mViewWidth,mViewHeight);
+//                    if(preViewSize!=null){
+//                        parameters.setPreviewSize(preViewSize.width,preViewSize.height);
+//                    }
+//                    List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
+//                    showLog("SupportedPictureSizes:");
+//                    for(Camera.Size size:pictureSizes){
+//                        showLog("w:"+size.width+" h:"+size.height+" w:h="+size.width*1.f/size.height+" vs: screen ratio w="+mViewWidth+" h="+mViewHeight+" w:h="+mViewWidth*1.f/mViewHeight);
+//                    }
+//                    Camera.Size picSize = getBestSize(pictureSizes, mViewWidth, mViewHeight);
+//                    if(picSize!=null){
+//                        parameters.setPictureSize(picSize.width,picSize.height);
+//                    }
+
+//                    Camera.Size bestSize = getBestSize(
+//                            parameters.getSupportedPreviewSizes(),
+//                            parameters.getSupportedPictureSizes(),
+//                            mViewWidth,
+//                            mViewHeight);
+//                    if(bestSize!=null){
+//                        showLog("best size w="+bestSize.width+" h="+bestSize.height);
+//                        parameters.setPictureSize(bestSize.width,bestSize.height);
+//                        parameters.setPreviewSize(bestSize.width,bestSize.height);
+//                    }
                     parameters.setJpegQuality(100);
                     parameters.setRotation(90);
                     parameters.setPictureFormat(ImageFormat.JPEG);
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                     mCamera.setParameters(parameters);
                     mCamera.startPreview();
-                    mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {
-                            mIsReadyToPic.set(success);
-                        }
-                    });
+                    mCamera.autoFocus(mFocusCallback);
                 }
             }
 
@@ -102,23 +128,26 @@ public class CameraView extends SurfaceView {
         });
     }
 
-    private Camera.Size getBestSize(List<Camera.Size> sizes, int viewWidth, int viewHeight ) {
-        float ratio=viewWidth*1.f/viewHeight;
-        Collections.sort(sizes, new Comparator<Camera.Size>() {
+    private Camera.Size getBestSize(
+            List<Camera.Size> supportPreSizes,
+            List<Camera.Size> supportPicSizes,
+            int outWidth,
+            int outHeight) {
+        ArrayList<Camera.Size> list=new ArrayList<>(supportPreSizes);
+        for(Camera.Size size:supportPicSizes){
+            if(list.contains(size)){
+                continue;
+            }
+            list.add(size);
+        }
+        Collections.sort(list, new Comparator<Camera.Size>() {
             @Override
-            public int compare(Camera.Size o1, Camera.Size o2) {
-                return o2.width-o1.width;
+            public int compare(Camera.Size size1, Camera.Size size2) {
+                return size1.width-size2.width;
             }
         });
-        for(Camera.Size size:sizes){
-            float supportRatio = size.width *1.f/ size.height;
-            if(ratio==supportRatio){
-                return size;
-            }
-        }
-        for(Camera.Size size:sizes){
-            float supportRatio = size.width *1.f/ size.height;
-            if(ratio-supportRatio<=0.1){
+        for(Camera.Size size:list){
+            if(size.width>=outWidth&&size.height>=outHeight){
                 return size;
             }
         }
@@ -126,30 +155,29 @@ public class CameraView extends SurfaceView {
     }
 
     public void takePicture(){
-        if(mCamera!=null){
-            if(!mIsReadyToPic.get()){
-                mCallBack.onError(new Exception("Camera is not focus.Take pic only when the camera is focus."));
-                return;
-            }
-            mCamera.takePicture(null, null, new Camera.PictureCallback() {
-                @Override
-                public void onPictureTaken(byte[] data, Camera camera) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    if(mCallBack!=null){
-                        mCallBack.onGetPic(bitmap);
-                    }
-                    //when a pic is taken the camera will stop previewing, so here we resume the preview
-                    mCamera.cancelAutoFocus();
-                    mCamera.startPreview();
-                    mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {
-                            mIsReadyToPic.set(success);
-                        }
-                    });
+        try {
+            if(mCamera!=null){
+                if(!mIsReadyToPic.get()){
+                    mCallBack.onError(new Exception("Camera is not focus.Take pic only when the camera is focus."));
+                    return;
                 }
-            });
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        if(mCallBack!=null){
+                            mCallBack.onGetPic(bitmap);
+                        }
+                        //when a pic is taken the camera will stop previewing, so here we resume the preview
+                        mCamera.cancelAutoFocus();
+                        mCamera.startPreview();
+                        mCamera.autoFocus(mFocusCallback);
+                    }
+                });
 
+            }
+        }catch (Exception e){
+            handleException(e);
         }
     }
 
@@ -161,10 +189,14 @@ public class CameraView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(mIsAnimFocusing.get()){
+            return true;
+        }
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 float x = event.getX();
                 float y = event.getY();
+                showFocusingAnimation(x,y);
                 focusCameraOn(convertDownXToCameraX(x),convertDownYToCameraY(y));
                 break;
         }
@@ -180,7 +212,7 @@ public class CameraView extends SurfaceView {
 
     private void focusCameraOn(int x, int y) {
         if(mCamera!=null){
-            showLog("Camera focus on: x="+x+" y="+y);
+            showLog("Camera focus onTask: x="+x+" y="+y);
             mCamera.stopPreview();
             mCamera.cancelAutoFocus();
             Camera.Parameters param = mCamera.getParameters();
@@ -192,15 +224,10 @@ public class CameraView extends SurfaceView {
                 int bottom=Math.min(y+50,1000);
                 list.add(new Camera.Area(new Rect(left,top,right,bottom),800));
                 param.setMeteringAreas(list);
-                mCamera.setParameters(param);
-                mCamera.startPreview();
-                mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                    @Override
-                    public void onAutoFocus(boolean success, Camera camera) {
-                        mIsReadyToPic.set(success);
-                    }
-                });
             }
+            mCamera.setParameters(param);
+            mCamera.startPreview();
+            mCamera.autoFocus(mFocusCallback);
         }
 
     }
@@ -239,5 +266,66 @@ public class CameraView extends SurfaceView {
             mCamera.release();
             mCamera=null;
         }
+    }
+
+    private void showFocusingAnimation(float downX, float downY){
+
+        ValueAnimator animator=ValueAnimator.ofInt(70,0);
+        animator.setDuration(500);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                if(mAnimationValueCallBack!=null){
+                    mAnimationValueCallBack.onAnimationUpdate(downX,downY,(int) animation.getAnimatedValue());
+                }
+            }
+        });
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mIsAnimFocusing.set(true);
+                if(mAnimationValueCallBack!=null){
+                    mAnimationValueCallBack.onAnimationStart();
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mIsAnimFocusing.set(false);
+                if(mAnimationValueCallBack!=null){
+                    mAnimationValueCallBack.onAnimationEnd();
+                }
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                mIsAnimFocusing.set(false);
+                if(mAnimationValueCallBack!=null){
+                    mAnimationValueCallBack.onAnimationCancel();
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.start();
+    }
+
+    public interface AnimationValueCallBack{
+        void onAnimationUpdate(float x, float y, int radius);
+
+        void onAnimationStart();
+
+        void onAnimationEnd();
+
+        void onAnimationCancel();
+    }
+
+    public void setAnimationValueCallBack(AnimationValueCallBack animationValueCallBack) {
+        mAnimationValueCallBack = animationValueCallBack;
     }
 }

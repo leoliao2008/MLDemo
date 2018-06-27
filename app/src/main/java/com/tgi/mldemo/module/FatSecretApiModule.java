@@ -3,10 +3,14 @@ package com.tgi.mldemo.module;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.fatsecret.platform.model.CompactFood;
 import com.fatsecret.platform.model.Food;
 import com.fatsecret.platform.services.FatsecretService;
 import com.fatsecret.platform.services.Response;
 import com.fatsecret.platform.services.android.ResponseListener;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class FatSecretApiModule {
     private static final String CONSUMER_KEY="e8a809c1bffc4e2baee1cb25fe722286";
@@ -14,7 +18,6 @@ public class FatSecretApiModule {
     private Context mContext;
     private ResponseListener mListener;
     private final FatsecretService mService;
-
     //public:
 
 
@@ -26,19 +29,16 @@ public class FatSecretApiModule {
 
     public void getBasicFoodInfo(String keyWord){
         new GetBasicFoodsInfoTask(keyWord).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-
     }
 
     public void getDetailFoodInfo(long id){
         new GetDetailFoodInfoTask(id).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
-
-
     //private:
 
 
-    private class GetBasicFoodsInfoTask extends AsyncTask<Void, Void, Response> {
+    private class GetBasicFoodsInfoTask extends AsyncTask<Void, Void, Response<CompactFood>> {
         private String mKeyWord;
 
         public GetBasicFoodsInfoTask(String keyWord) {
@@ -51,8 +51,19 @@ public class FatSecretApiModule {
         }
 
         @Override
-        protected void onPostExecute(Response response) {
+        protected void onPostExecute(Response<CompactFood> response) {
             super.onPostExecute(response);
+            List<CompactFood> results = response.getResults();
+            if(results!=null){
+                Iterator<CompactFood> iterator = results.iterator();
+                while (iterator.hasNext()){
+                    CompactFood food = iterator.next();
+                    //we don't want anything not generic
+                    if(!food.getType().equalsIgnoreCase("Generic")){
+                        iterator.remove();
+                    }
+                }
+            }
             mListener.onFoodListRespone(response);
         }
     }
@@ -74,6 +85,21 @@ public class FatSecretApiModule {
             super.onPostExecute(food);
             mListener.onFoodResponse(food);
         }
+    }
+
+    public CompactFood getBestResult(List<CompactFood> results,String foodName){
+        for(CompactFood temp:results){
+//            //we only select generic food vs brand food
+//            if(!temp.getType().equalsIgnoreCase("Generic")){
+//                continue;
+//            }
+            //we need to find the name matching the given food name
+            if(temp.getName().equalsIgnoreCase(foodName)){
+                return temp;
+            }
+        }
+        return null;
+
     }
 
 }

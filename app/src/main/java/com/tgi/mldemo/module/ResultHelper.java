@@ -39,57 +39,66 @@ public class ResultHelper {
         String [] noUseCategory={"Food","Seafood","Dish","Recipe","Vegetable","Meat","Cuisine",
         "Fish","Fruit","Produce","Diet","Health","Natural Food","Natural Foods","Local Food","Poultry","Fried Food",
         "Cooking","Leaf Vegetable","Leaf","Root Vegetable","Ingredient"};
-        Iterator<LabelAnnotations> it1 = labelList.iterator();
-        while (it1.hasNext()){
-            LabelAnnotations label = it1.next();
-            String description = label.getDescription();
-            if(TextUtils.isEmpty(description)){
-                it1.remove();
-                continue;
-            }
-            for(String s:noUseCategory){
-                if(description.compareToIgnoreCase(s)==0){
+        if(labelList!=null&&labelList.size()>0){
+            Iterator<LabelAnnotations> it1 = labelList.iterator();
+            while (it1.hasNext()){
+                LabelAnnotations label = it1.next();
+                String description = label.getDescription();
+                if(TextUtils.isEmpty(description)){
                     it1.remove();
-                    break;
+                    continue;
+                }
+                for(String s:noUseCategory){
+                    if(description.compareToIgnoreCase(s)==0){
+                        it1.remove();
+                        break;
+                    }
                 }
             }
         }
 
-        Iterator<WebEntities> it2 = webEntities.iterator();
-        while (it2.hasNext()){
-            WebEntities webEntity = it2.next();
-            String description = webEntity.getDescription();
-            if(TextUtils.isEmpty(description)){
-                it2.remove();
-                continue;
-            }
-            for(String s:noUseCategory){
-                if(description.compareToIgnoreCase(s)==0){
+        if(webEntities!=null&&webEntities.size()>0){
+            Iterator<WebEntities> it2 = webEntities.iterator();
+            while (it2.hasNext()){
+                WebEntities webEntity = it2.next();
+                String description = webEntity.getDescription();
+                if(TextUtils.isEmpty(description)){
                     it2.remove();
-                    break;
+                    continue;
+                }
+                for(String s:noUseCategory){
+                    if(description.compareToIgnoreCase(s)==0){
+                        it2.remove();
+                        break;
+                    }
                 }
             }
         }
 
-        Iterator<BestGuessLabels> it3 = bestGuessList.iterator();
-        while (it3.hasNext()){
-            BestGuessLabels guess = it3.next();
-            String guessLabel = guess.getLabel();
-            if(TextUtils.isEmpty(guessLabel)){
-                it3.remove();
-                continue;
-            }
-            for(String s:noUseCategory){
-                if(guessLabel.compareToIgnoreCase(s)==0){
+
+
+        if(bestGuessList!=null&&bestGuessList.size()>0){
+            Iterator<BestGuessLabels> it3 = bestGuessList.iterator();
+            while (it3.hasNext()){
+                BestGuessLabels guess = it3.next();
+                String guessLabel = guess.getLabel();
+                if(TextUtils.isEmpty(guessLabel)){
                     it3.remove();
-                    break;
+                    continue;
+                }
+                for(String s:noUseCategory){
+                    if(guessLabel.compareToIgnoreCase(s)==0){
+                        it3.remove();
+                        break;
+                    }
                 }
             }
         }
+
 
         //then we can begin the narrow down.
         //first we look to the web entity list, because it tend to be more accurate than the other two
-        if(webEntities.size()>0){
+        if(webEntities!=null&&webEntities.size()>0){
             for(WebEntities temp:webEntities){
                 if(temp.getScore()>=1){
                     //for those with high score which means it is quite likely to be the correct answer, we adapt the following logic
@@ -109,7 +118,7 @@ public class ResultHelper {
         }
 
         //if no result fits the paten, we shall look to label list to try find the answer
-        if(labelList.size()>0){
+        if(labelList!=null&&labelList.size()>0){
             //this is the case where web entities find no confident answers and we have to ignore the web entities
             if(webEntities.size()>0&&webEntities.get(0).getScore()<0.7){
                 for(LabelAnnotations label:labelList){
@@ -133,10 +142,12 @@ public class ResultHelper {
 
     private static String compareLabelWithBestGuess(LabelAnnotations label, ArrayList<BestGuessLabels> bestGuessList) {
         String labelDescription = label.getDescription().toLowerCase();
-        for(BestGuessLabels bean:bestGuessList){
-            String guess = bean.getLabel().toLowerCase();
-            if(labelDescription.equals(guess)||labelDescription.contains(guess)||guess.contains(labelDescription)){
-                return labelDescription;
+        if(bestGuessList!=null){
+            for(BestGuessLabels bean:bestGuessList){
+                String guess = bean.getLabel().toLowerCase();
+                if(labelDescription.equals(guess)||labelDescription.contains(guess)||guess.contains(labelDescription)){
+                    return labelDescription;
+                }
             }
         }
         return null;
@@ -168,20 +179,24 @@ public class ResultHelper {
         }
         description = description.toLowerCase();
         //we go to the best guess list, if their results are close, then ignore label list, return the entityDescription;
-        for(BestGuessLabels bean:bestGuessList){
-            String guess = bean.getLabel().toLowerCase();
-            if(description.equals(guess)||description.contains(guess)||guess.contains(description)){
-                return description;
-            }
-        }
-        //if does not match, we go to the label list to do the same thing;
-        for(LabelAnnotations bean:labelList){
-            String label = bean.getDescription().toLowerCase();
-            if(description.equals(label)||description.contains(label)||label.contains(description)){
-                return description;
+        if(bestGuessList!=null){
+            for(BestGuessLabels bean:bestGuessList){
+                String guess = bean.getLabel().toLowerCase();
+                if(description.equals(guess)||description.contains(guess)||guess.contains(description)){
+                    return description;
+                }
             }
         }
 
+        //if does not match, we go to the label list to do the same thing;
+        if(labelList!=null){
+            for(LabelAnnotations bean:labelList){
+                String label = bean.getDescription().toLowerCase();
+                if(description.equals(label)||description.contains(label)||label.contains(description)){
+                    return description;
+                }
+            }
+        }
         return null;
     }
 
@@ -202,33 +217,43 @@ public class ResultHelper {
         Response response= responses.get(0);
         ArrayList<String> list=new ArrayList<>();
         List<LabelAnnotations> labelAnnotations = response.getLabelAnnotations();
-        for(LabelAnnotations lb:labelAnnotations){
-            String description = lb.getDescription();
-            if(TextUtils.isEmpty(description)){
-                continue;
-            }
-            //add those with at least 50% confidence
-            if(lb.getScore()>=0.5){
-                list.add(description);
+        if(labelAnnotations!=null){
+            for(LabelAnnotations lb:labelAnnotations){
+                String description = lb.getDescription().toLowerCase();
+                if(TextUtils.isEmpty(description)){
+                    continue;
+                }
+                //add those with at least 50% confidence
+                if(lb.getScore()>=0.5&&!list.contains(description)){
+                    list.add(description);
+                }
             }
         }
+
         List<WebEntities> webEntities = response.getWebDetection().getWebEntities();
-        for(WebEntities entities:webEntities){
-            String description = entities.getDescription();
-            if(TextUtils.isEmpty(description)){
-                continue;
-            }
-            if(entities.getScore()>=0.5){
-                list.add(description);
+        if(webEntities!=null){
+            for(WebEntities entities:webEntities){
+                String description = entities.getDescription().toLowerCase();
+                if(TextUtils.isEmpty(description)){
+                    continue;
+                }
+                if(entities.getScore()>=0.5&&!list.contains(description)){
+                    list.add(description);
+                }
             }
         }
+
         List<BestGuessLabels> bestGuessLabels = response.getWebDetection().getBestGuessLabels();
-        for(BestGuessLabels guess:bestGuessLabels){
-            String label = guess.getLabel();
-            if(TextUtils.isEmpty(label)){
-                continue;
+        if(bestGuessLabels!=null){
+            for(BestGuessLabels guess:bestGuessLabels){
+                String label = guess.getLabel().toLowerCase();
+                if(TextUtils.isEmpty(label)){
+                    continue;
+                }
+                if(!list.contains(label)){
+                    list.add(label);
+                }
             }
-            list.add(label);
         }
         return list;
     }
