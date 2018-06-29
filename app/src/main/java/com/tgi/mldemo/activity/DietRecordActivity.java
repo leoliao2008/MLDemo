@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -19,6 +20,7 @@ import com.tgi.mldemo.R;
 import com.tgi.mldemo.bean.DietLog;
 import com.tgi.mldemo.module.NdbSqlModule;
 import com.tgi.mldemo.utils.AlertDialogUtils;
+import com.tgi.mldemo.utils.ToastUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ public class DietRecordActivity extends AppCompatActivity {
                 ViewHolder vh=null;
                 if(convertView==null){
                     convertView= LayoutInflater.from(DietRecordActivity.this).inflate(
-                            R.layout.item_food_data_base,
+                            R.layout.item_diet_log,
                             parent,
                             false
                     );
@@ -86,9 +88,8 @@ public class DietRecordActivity extends AppCompatActivity {
                 DietLog record = mDietLogs.get(position);
                 vh.name.setText(record.getName());
                 vh.date.setText(mSimpleDateFormat.format(new Date(record.getDate())));
-//                MyCompactFood compactFood = mFatSecretSQLModule.queryFood(record.getName());
+                vh.consumption.setText(record.getWeight()+"g");
                 Bitmap bitmap=null;
-                vh.desc.setText(record.getName());
                 bitmap = BitmapFactory.decodeFile(record.getThumbNail());
                 if(bitmap!=null){
                     vh.thumbNail.setImageBitmap(bitmap);
@@ -101,18 +102,43 @@ public class DietRecordActivity extends AppCompatActivity {
             class ViewHolder{
                 ImageView thumbNail;
                 TextView name;
-                TextView desc;
+                TextView consumption;
                 TextView date;
                 ViewHolder(View convertView){
-                    thumbNail=convertView.findViewById(R.id.item_food_data_base_iv_thumb_nail);
-                    name=convertView.findViewById(R.id.item_food_data_base_tv_name);
-                    desc=convertView.findViewById(R.id.item_food_data_base_tv_description);
-                    date=convertView.findViewById(R.id.item_food_data_base_tv_date);
+                   thumbNail=convertView.findViewById(R.id.item_diet_log_iv_thumb_nail);
+                   name=convertView.findViewById(R.id.item_diet_log_tv_name);
+                   date=convertView.findViewById(R.id.item_diet_log_tv_date);
+                   consumption=convertView.findViewById(R.id.item_diet_log_tv_consumption);
                 }
             }
         };
         listView.setDividerHeight(0);
         listView.setAdapter(mAdapter);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialogUtils.showYesOrNoDialogue(
+                        DietRecordActivity.this,
+                        "Info",
+                        "Press Ok to delete the diet record, press no to cancel",
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                DietLog log = mDietLogs.get(position);
+                                int i = mSqlModule.deleteDietLog(log.getName(), log.getDate());
+                                if(i>0){
+                                    mDietLogs.remove(position);
+                                    mAdapter.notifyDataSetChanged();
+                                }else {
+                                    ToastUtil.showToast(DietRecordActivity.this,"Fail to delete record.");
+                                }
+                            }
+                        },
+                        null
+                );
+                return true;
+            }
+        });
         mProgressDialog = AlertDialogUtils.showProgressDialog(
                 DietRecordActivity.this,
                 "Info",

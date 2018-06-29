@@ -4,6 +4,7 @@ public class DietLog {
     private String mName;
     private long mDate;
     private String mThumbNail;
+    private double mWeight;
 
     public String getName() {
         return mName;
@@ -27,5 +28,13 @@ public class DietLog {
 
     public void setThumbNail(String thumbNail) {
         mThumbNail = thumbNail;
+    }
+
+    public double getWeight() {
+        return mWeight;
+    }
+
+    public void setWeight(double weight) {
+        mWeight = weight;
     }
 }

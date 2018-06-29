@@ -82,35 +82,6 @@ public class CameraView extends SurfaceView {
                     mCamera.stopPreview();
                     mCamera.cancelAutoFocus();
                     Camera.Parameters parameters = mCamera.getParameters();
-//                    List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
-//                    showLog("SupportedPreviewSizes:");
-//                    for(Camera.Size size:previewSizes){
-//                        showLog("w:"+size.width+" h:"+size.height+" w:h="+size.width*1.f/size.height+" vs: screen ratio w="+mViewWidth+" h="+mViewHeight+" w:h="+mViewWidth*1.f/mViewHeight);
-//                    }
-//                    Camera.Size preViewSize= getBestSize(previewSizes,mViewWidth,mViewHeight);
-//                    if(preViewSize!=null){
-//                        parameters.setPreviewSize(preViewSize.width,preViewSize.height);
-//                    }
-//                    List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
-//                    showLog("SupportedPictureSizes:");
-//                    for(Camera.Size size:pictureSizes){
-//                        showLog("w:"+size.width+" h:"+size.height+" w:h="+size.width*1.f/size.height+" vs: screen ratio w="+mViewWidth+" h="+mViewHeight+" w:h="+mViewWidth*1.f/mViewHeight);
-//                    }
-//                    Camera.Size picSize = getBestSize(pictureSizes, mViewWidth, mViewHeight);
-//                    if(picSize!=null){
-//                        parameters.setPictureSize(picSize.width,picSize.height);
-//                    }
-
-//                    Camera.Size bestSize = getBestSize(
-//                            parameters.getSupportedPreviewSizes(),
-//                            parameters.getSupportedPictureSizes(),
-//                            mViewWidth,
-//                            mViewHeight);
-//                    if(bestSize!=null){
-//                        showLog("best size w="+bestSize.width+" h="+bestSize.height);
-//                        parameters.setPictureSize(bestSize.width,bestSize.height);
-//                        parameters.setPreviewSize(bestSize.width,bestSize.height);
-//                    }
                     parameters.setJpegQuality(100);
                     parameters.setRotation(90);
                     parameters.setPictureFormat(ImageFormat.JPEG);
@@ -174,7 +145,6 @@ public class CameraView extends SurfaceView {
                         mCamera.autoFocus(mFocusCallback);
                     }
                 });
-
             }
         }catch (Exception e){
             handleException(e);

@@ -323,7 +323,7 @@ public class CloudVisionModule {
         }
 
         //if no result fits the paten, we shall look to label list to try find the answer
-        if(labelList!=null&&labelList.size()>0){
+        if(labelList!=null&&labelList.size()>0&&webEntities!=null){
             //this is the case where web entities find no confident answers and we have to ignore the web entities
             if(webEntities.size()>0&&webEntities.get(0).getScore()<0.7){
                 for(LabelAnnotations label:labelList){

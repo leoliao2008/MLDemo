@@ -28,7 +28,7 @@ public class FoodSearchRequestBuilder extends AbsRequestBuilder<FoodSearchReques
                 "Standard Reference",//Data source
                 "",//Food group ID
                 "r",//Sort the results by food name (n) or by search relevance (r)
-                "10",//maximum rows to return
+                "25",//maximum rows to return
                 "0",//beginning row in the result set to begin
                 "JSON"//results format: json or xml
         };

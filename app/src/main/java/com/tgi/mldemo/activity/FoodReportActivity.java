@@ -59,9 +59,9 @@ public class FoodReportActivity extends AppCompatActivity {
             tvProtein.setText(mReport.getProtein());
             FoodReport.FoodMatadataDesc desc = mReport.getDesc();
             if (desc != null) {
-                tvName.setText("FoodName:" + desc.getFoodName());
+                tvName.setText("Description:" + desc.getFoodName());
                 tvDataSource.setText("DataSource:" + desc.getDataSource());
-                tvID.setText("ID:" + desc.getNdbNo());
+                tvID.setText("Nutrient Database#:" + desc.getNdbNo());
                 tvUnit.setText("Unit: 100" + desc.getUnit());
             }
             FoodReportAdapter adapter = new FoodReportAdapter(

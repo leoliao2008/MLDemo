@@ -1,5 +1,6 @@
 package com.tgi.mldemo.ndb_package.builder;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.tgi.mldemo.ndb_package.Static;
@@ -7,6 +8,7 @@ import com.tgi.mldemo.ndb_package.base.AbsRequestBuilder;
 import com.tgi.mldemo.ndb_package.request.FoodReportRequest;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FoodReportRequestBuilder extends AbsRequestBuilder<FoodReportRequest> {
     private ArrayList<String> mSearchItems=new ArrayList<>();
@@ -20,9 +22,26 @@ public class FoodReportRequestBuilder extends AbsRequestBuilder<FoodReportReques
         mParams=new String[]{"b","JSON"};
     }
 
-    public FoodReportRequestBuilder addSearchItems(ArrayList<String> list){
-        mSearchItems.clear();
-        mSearchItems.addAll(list);
+
+    public FoodReportRequestBuilder addSearchItem(String ndbNo){
+        checkAndAddSearchItem(ndbNo);
+        return this;
+    }
+
+    private void checkAndAddSearchItem(String item){
+        if(!TextUtils.isEmpty(item)){
+            item=item.toLowerCase();
+            if(!mSearchItems.contains(item)){
+                mSearchItems.add(item);
+            }
+        }
+    }
+
+
+    public FoodReportRequestBuilder addSearchItems(List<String> list){
+        for(String temp:list){
+            checkAndAddSearchItem(temp);
+        }
         return this;
     }
 

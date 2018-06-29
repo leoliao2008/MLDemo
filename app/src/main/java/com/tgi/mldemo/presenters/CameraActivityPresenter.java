@@ -17,7 +17,7 @@ import com.tgi.mldemo.callback.JavaHttpUrlRequestCallBack;
 import com.tgi.mldemo.callback.NdbModuleCallBack;
 import com.tgi.mldemo.data.Static;
 import com.tgi.mldemo.module.CloudVisionModule;
-import com.tgi.mldemo.module.NdbModule;
+import com.tgi.mldemo.module.NdbManager;
 import com.tgi.mldemo.ndb_package.bean.FoodReportResponses.SearchResult.FoodReport;
 import com.tgi.mldemo.utils.ToastUtil;
 
@@ -32,7 +32,7 @@ public class CameraActivityPresenter {
     private Bitmap mSnapShot;
     private LinearLayout.LayoutParams mLayoutParams;
     private AtomicBoolean mIsRecyclerShown=new AtomicBoolean(false);
-    private NdbModule mNdbModule;
+    private NdbManager mNdbManager;
     private FoodReport mFoodReport;
 
 
@@ -61,7 +61,7 @@ public class CameraActivityPresenter {
 
     public void updateDietLog() {
         if(mFoodReport!=null){
-            mNdbModule.updateDietLog(mFoodReport.getSearchItem(),mSnapShot);
+            mNdbManager.insertNewDietLog(mFoodReport.getSearchItem(),mSnapShot);
             showToast("Saved to diet log successfully.");
         }else {
             showToast("No food report is available.");
@@ -89,7 +89,7 @@ public class CameraActivityPresenter {
 
     //private:
     private void initNdbModule() {
-        mNdbModule=new NdbModule(
+        mNdbManager =new NdbManager(
                 mActivity,
                 new NdbModuleCallBack(){
                     @Override
@@ -242,7 +242,7 @@ public class CameraActivityPresenter {
     }
 
     private void searchFoodNutrient(String bestResult) {
-        mNdbModule.getFoodReport(bestResult,mSnapShot);
+        mNdbManager.getFoodReport(bestResult,mSnapShot);
     }
 
     private void updateRecyclerView(ArrayList<String> newResults){

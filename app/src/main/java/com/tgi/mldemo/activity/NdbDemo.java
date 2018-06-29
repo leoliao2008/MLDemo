@@ -72,9 +72,7 @@ public class NdbDemo extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FoodSearchResponses.Response.Item item = mList.get(position);
                 String foodId = item.getNdbNo();
-                ArrayList<String> list=new ArrayList<>();
-                list.add(foodId);
-                new FoodReportRequestBuilder().addSearchItems(list).build().post(
+                new FoodReportRequestBuilder().addSearchItem(foodId).build().post(
                         new FoodReportRequestCallBack(){
                             @Override
                             public void onPreExecute() {

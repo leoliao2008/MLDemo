@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.tgi.mldemo.bean.DietLog;
@@ -17,14 +16,18 @@ import com.tgi.mldemo.utils.LocalStorageUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class NdbSqlModule extends SQLiteOpenHelper {
 
     private static final String DATA_BASE_NAME="LOCAL_NDB";
     private static final String PRIME_SHEET="FOOD_LOG";
     private static final String DIET_LOG="DIET_LOG";
-    private static final String NDBNO_SHEET="NDBNO_SHEET";
-    private static final int DATA_BASE_VER=3;
+    private static final int DATA_BASE_VER=4;
     private Context mContext;
+    private int mCurrentVer=-1;
+    private int mUpgradeVer=-1;
+    private ArrayList<DietLog> mDietLogs;
 
     public NdbSqlModule(Context context) {
         super(context, DATA_BASE_NAME, null, DATA_BASE_VER);
@@ -39,25 +42,35 @@ public class NdbSqlModule extends SQLiteOpenHelper {
         db.execSQL(cmd1);
         //this is the table that records user's diet record
         String cmd2="create table if not exists '"+DIET_LOG+"' (_id integer primary key autoincrement," +
-                "food text,date long,thumb_nail text)";
+                "food text,date long,thumb_nail text,weight double)";
         db.execSQL(cmd2);
-        //this is the table that records a key value set for all the locally available ndbno and its corresponding search item.
-        //this table is necessary because the food name from the image annotations must be matched to a ndbno so that we don't need
-        //to search every time for the potential food names math with that of the image annotation.
-//        String cmd3="create table if not exists '"+NDBNO_SHEET+"' (_id integer primary key autoincrement," +
-//                "ndbno text,search_item text)";
-//        db.execSQL(cmd3);
+        switch (mUpgradeVer){
+            case 4:
+                if(mDietLogs!=null){
+                    for(DietLog dietLog:mDietLogs){
+                        insertNewDietLog(dietLog,db);
+                    }
+                }
+                break;
+        }
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        mCurrentVer=oldVersion;
+        mUpgradeVer=newVersion;
+        switch (oldVersion){
+            case 1:
+            case 2:
+            case 3:
+                mDietLogs = batchQueryDietLogs(db);
+                break;
+        }
         String cmd1="drop table if exists '"+PRIME_SHEET+"'";
         db.execSQL(cmd1);
         String cmd2="drop table if exists '"+DIET_LOG+"'";
         db.execSQL(cmd2);
-        String cmd3="drop table if exists '"+NDBNO_SHEET+"'";
-        db.execSQL(cmd3);
         onCreate(db);
     }
 
@@ -80,7 +93,7 @@ public class NdbSqlModule extends SQLiteOpenHelper {
         return foodReport;
     }
 
-    public long insertNewFoodReport(FoodReport report, String search_item,Bitmap bitmap){
+    public long insertNewFoodReport(FoodReport report){
         long row=-1;
         String ndbNo=null;
         try {
@@ -104,16 +117,10 @@ public class NdbSqlModule extends SQLiteOpenHelper {
             cv.put("ds",report.getDesc().getDataSource());
             cv.put("manu",report.getDesc().getManufacturer());
             cv.put("ru",report.getDesc().getUnit());
-            String path="";
-            try {
-                path=LocalStorageUtils.saveThumbNail(mContext,bitmap);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            cv.put("thumb_nail", path);
+            cv.put("thumb_nail", report.getThumbNailPath());
             cv.put("nutri",tableName);
-            cv.put("date",System.currentTimeMillis());
-            cv.put("search_item",search_item);
+            cv.put("date",report.getDate());
+            cv.put("search_item",report.getSearchItem());
             row= db.insert(PRIME_SHEET, null, cv);
         }
         return row;
@@ -156,19 +163,21 @@ public class NdbSqlModule extends SQLiteOpenHelper {
 
     private List<Nutrient> queryNutrients(String tableName){
         ArrayList<Nutrient> list=new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(tableName, null, null, null, null, null, null);
-        while (cursor.moveToNext()){
-            Nutrient nutrient=new Nutrient();
-            nutrient.setDerivationInfo(cursor.getString(cursor.getColumnIndex("derivation")));
-            nutrient.setGroup(cursor.getString(cursor.getColumnIndex("_group")));
-            nutrient.setNutrientId(cursor.getString(cursor.getColumnIndex("id")));
-            nutrient.setNutrientName(cursor.getString(cursor.getColumnIndex("name")));
-            nutrient.setUnit(cursor.getString(cursor.getColumnIndex("unit")));
-            nutrient.setValue(cursor.getString(cursor.getColumnIndex("value")));
-            list.add(nutrient);
+        if(!TextUtils.isEmpty(tableName)){
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(tableName, null, null, null, null, null, null);
+            while (cursor.moveToNext()){
+                Nutrient nutrient=new Nutrient();
+                nutrient.setDerivationInfo(getColumnValue(String.class,cursor,"derivation","null"));
+                nutrient.setGroup(getColumnValue(String.class,cursor,"_group","null"));
+                nutrient.setNutrientId(getColumnValue(String.class,cursor,"id","0"));
+                nutrient.setNutrientName(getColumnValue(String.class,cursor,"name","null"));
+                nutrient.setUnit(getColumnValue(String.class,cursor,"unit",""));
+                nutrient.setValue(getColumnValue(String.class,cursor,"value","0"));
+                list.add(nutrient);
+            }
+            cursor.close();
         }
-        cursor.close();
         return list;
     }
 
@@ -209,20 +218,19 @@ public class NdbSqlModule extends SQLiteOpenHelper {
 
     private FoodReport genFoodReport(Cursor cursor) {
         FoodReport report=new FoodReport();
-        report.setReleaseVersion(cursor.getString(cursor.getColumnIndex("sr")));
-        report.setReportType(cursor.getString(cursor.getColumnIndex("type")));
-        report.setThumbNailPath(cursor.getString(cursor.getColumnIndex("thumb_nail")));
+        report.setReleaseVersion(getColumnValue(String.class,cursor,"sr","null"));
+        report.setReportType(getColumnValue(String.class,cursor,"type","null"));
+        report.setThumbNailPath(getColumnValue(String.class,cursor,"thumb_nail",""));
         FoodMatadataDesc desc=new FoodMatadataDesc();
-        desc.setNdbNo(cursor.getString(cursor.getColumnIndex("ndbno")));
-        desc.setDataSource(cursor.getString(cursor.getColumnIndex("ds")));
-        desc.setFoodName(cursor.getString(cursor.getColumnIndex("name")));
-        desc.setManufacturer(cursor.getString(cursor.getColumnIndex("manu")));
-        desc.setUnit(cursor.getString(cursor.getColumnIndex("ru")));
+        desc.setNdbNo(getColumnValue(String.class,cursor,"ndbno",""));
+        desc.setDataSource(getColumnValue(String.class,cursor,"ds","null"));
+        desc.setFoodName(getColumnValue(String.class,cursor,"name","null"));
+        desc.setManufacturer(getColumnValue(String.class,cursor,"manu","null"));
+        desc.setUnit(getColumnValue(String.class,cursor,"ru","null"));
         report.setDesc(desc);
-        String table = cursor.getString(cursor.getColumnIndex("nutri"));
-        report.setNutrients(queryNutrients(table));
-        report.setDate(cursor.getLong(cursor.getColumnIndex("date")));
-        report.setSearchItem(cursor.getString(cursor.getColumnIndex("search_item")));
+        report.setNutrients(queryNutrients(getColumnValue(String.class,cursor,"nutri","")));
+        report.setDate(getColumnValue(Long.class,cursor,"date",0L));
+        report.setSearchItem(getColumnValue(String.class,cursor,"search_item",""));
         return report;
     }
 
@@ -238,11 +246,12 @@ public class NdbSqlModule extends SQLiteOpenHelper {
                 null
         );
         while (cursor.moveToNext()){
-            String thumbNail = cursor.getString(cursor.getColumnIndex("thumb_nail"));
+            String thumbNail = getColumnValue(String.class,cursor,"thumb_nail","");
             if(!TextUtils.isEmpty(thumbNail)){
                 LocalStorageUtils.deleteThumbNail(thumbNail);
             }
-            String table = cursor.getString(cursor.getColumnIndex("nutri"));
+
+            String table = getColumnValue(String.class,cursor,"nutri","");
             if(!TextUtils.isEmpty(table)){
                 deleteNutrients(table);
             }
@@ -256,11 +265,19 @@ public class NdbSqlModule extends SQLiteOpenHelper {
     }
 
     public long insertNewDietLog(DietLog dietLog){
+        return insertNewDietLog(dietLog,null);
+    }
+
+    private long insertNewDietLog(DietLog dietLog,@Nullable SQLiteDatabase database){
+        if(database==null){
+            database= getWritableDatabase();
+        }
         ContentValues cv=new ContentValues();
         cv.put("food",dietLog.getName());
         cv.put("date",System.currentTimeMillis());
         cv.put("thumb_nail",dietLog.getThumbNail());
-        return getWritableDatabase().insert(DIET_LOG,null,cv);
+        cv.put("weight",dietLog.getWeight());
+        return database.insert(DIET_LOG,null,cv);
     }
 
     public int deleteDietLog(String foodName,long date){
@@ -269,24 +286,31 @@ public class NdbSqlModule extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 DIET_LOG,
                 new String[]{"thumb_nail"},
-                "name=? and date=?",
+                "food=? and date=?",
                 new String[]{foodName, String.valueOf(date)},
                 null,
                 null,
                 null);
         while (cursor.moveToNext()){
-            String path = cursor.getString(cursor.getColumnIndex("thumb_nail"));
+            String path = getColumnValue(String.class,cursor,"thumb_nail","");
             if(!TextUtils.isEmpty(path)){
                 LocalStorageUtils.deleteThumbNail(path);
             }
         }
         cursor.close();
-        return db.delete(DIET_LOG,"name=? and date=?",new String[]{foodName,String.valueOf(date)});
+        return db.delete(DIET_LOG,"food=? and date=?",new String[]{foodName,String.valueOf(date)});
     }
 
     public ArrayList<DietLog> batchQueryDietLogs(){
+        return batchQueryDietLogs(null);
+    }
+
+    private ArrayList<DietLog> batchQueryDietLogs(@Nullable SQLiteDatabase database){
+        if(database==null){
+            database=getReadableDatabase();
+        }
         ArrayList<DietLog> list=new ArrayList<>();
-        Cursor cursor = getReadableDatabase().query(
+        Cursor cursor = database.query(
                 DIET_LOG,
                 null,
                 null,
@@ -297,49 +321,35 @@ public class NdbSqlModule extends SQLiteOpenHelper {
         );
         while (cursor.moveToNext()){
             DietLog record=new DietLog();
-            record.setDate(cursor.getLong(cursor.getColumnIndex("date")));
-            record.setName(cursor.getString(cursor.getColumnIndex("food")));
-            record.setThumbNail(cursor.getString(cursor.getColumnIndex("thumb_nail")));
+            record.setDate(getColumnValue(Long.class,cursor,"date",0L));
+            record.setWeight(getColumnValue(Double.class,cursor,"weight",0.d));
+            record.setThumbNail(getColumnValue(String.class,cursor,"thumb_nail",""));
+            record.setName(getColumnValue(String.class,cursor,"food",""));
             list.add(record);
         }
         cursor.close();
         return list;
     }
 
-//    public long insertNdbKvPair(String searchItem,String ndbNo){
-//        ContentValues cv=new ContentValues();
-//        cv.put("search_item",searchItem.toLowerCase());
-//        cv.put("ndbno",ndbNo);
-//        return getWritableDatabase().insert(
-//                NDBNO_SHEET,
-//                null,
-//                cv);
-//    }
-//
-//    public String queryNdbNo(String searchItem){
-//        String ndbno=null;
-//        SQLiteDatabase db = getReadableDatabase();
-//        Cursor cursor = db.query(
-//                NDBNO_SHEET,
-//                new String[]{"ndbno", "search_item"},
-//                "search_item=?",
-//                new String[]{searchItem.toLowerCase()},
-//                null,
-//                null,
-//                null
-//        );
-//        while (cursor.moveToNext()){
-//            ndbno=cursor.getString(cursor.getColumnIndex("ndbno"));
-//        }
-//        cursor.close();
-//        return ndbno;
-//    }
-//
-//    public long deleteNdbKvPair(String searchItem){
-//        return getWritableDatabase().delete(
-//                NDBNO_SHEET,
-//                "search_item=?",
-//                new String[]{searchItem.toLowerCase()}
-//        );
-//    }
+    private <T > T getColumnValue(Class<T> valueType,Cursor cursor,String columnName,T def){
+        T result=null;
+        try {
+            if (valueType.equals(long.class)||valueType.equals(Long.class)) {
+                result=valueType.cast(cursor.getLong(cursor.getColumnIndex(columnName)));
+            }else if( valueType.equals(String.class)){
+                result=valueType.cast(cursor.getString(cursor.getColumnIndex(columnName)));
+            }else if( valueType.equals(double.class)||valueType.equals(Double.class)){
+                result=valueType.cast(cursor.getDouble(cursor.getColumnIndex(columnName)));
+            }else if(valueType.equals(int.class)||valueType.equals(Integer.class)){
+                result=valueType.cast(cursor.getInt(cursor.getColumnIndex(columnName)));
+            }
+        }catch(Exception e){
+           e.printStackTrace();
+        }
+        if(result!=null){
+            return result;
+        }
+        return def;
+    }
+
 }

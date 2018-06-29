@@ -40,7 +40,7 @@ public abstract class AbsRequest<RESPONSE> {
             try {
                 URL url=new URL(mStrRq);
                 connection= (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
+                connection.setRequestMethod("GET");
                 connection.connect();
                 in=new BufferedInputStream(connection.getInputStream());
                 Scanner scanner=new Scanner(in);
