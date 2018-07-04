@@ -79,7 +79,7 @@ public class CameraActivity extends AppCompatActivity {
         super.onStop();
         mPresenter.onStop();
 
-        
+
     }
 
     public void takePic(View view) {
