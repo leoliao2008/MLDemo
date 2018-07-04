@@ -80,6 +80,12 @@ public class CameraActivity extends AppCompatActivity {
         mPresenter.onStop();
 
 
+
+
+
+
+
+
     }
 
     public void takePic(View view) {
